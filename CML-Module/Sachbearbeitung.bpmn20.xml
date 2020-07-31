@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="UNTERPROZESS">
+  <process id="m3.1201cml.sachbearbeitung" name="CML - Sachbearbeitung" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <userTask id="usertask1" name="Antrag prüfen" activiti:assignee="${sbServiceKontoId}" activiti:formKey="formular:${formularSB}"></userTask>
+    <sequenceFlow id="flow2" sourceRef="exclusivegateway1" targetRef="usertask1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow3" sourceRef="usertask1" targetRef="exclusivegateway2"></sequenceFlow>
+    <serviceTask id="servicetask1" name="PDF-Zusammenfassung erzeugen" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.PdfErstellenService">
+      <extensionElements>
+        <activiti:field name="source">
+          <activiti:expression><![CDATA[${Form_SB}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="target">
+          <activiti:expression><![CDATA[pdfSummary]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow4" name="abgelehnt" sourceRef="exclusivegateway2" targetRef="servicetask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${entscheidung == "abgelehnt"}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask2" name="Prüfung abgeschlossen: ${processName}" activiti:assignee="${sbServiceKontoId}" activiti:formKey="showOnce">
+      <documentation>Sie haben die Prüfung des Antrags "${processName}" erfolgreich abgeschlossen:
+
+&lt;p&gt;
+&lt;b&gt;Der Antrag wurde abgelehnt.&lt;/b&gt;
+
+&lt;b&gt;Begründung:&lt;/b&gt;
+${begruendung}
+&lt;/p&gt;
+
+${startedByName} wurde über Ihre Entscheidung bereits informiert.
+
+
+Eine Zusammenfassung des Antrags als PDF-Datei finden Sie im Postfach des Behördenkontos:
+
+&lt;p&gt;{{POSTFACH}}&lt;/p&gt;
+
+Sie können den Antrag innerhalb der nächsten 185 Tage unter &lt;b&gt;Meine elektronischen Anträge&lt;/b&gt; aufrufen:
+Vorgangsnummer: &lt;b&gt;${processInstanceId}&lt;/b&gt;
+
+&lt;p&gt;{{ANTRAEGE}}&lt;/p&gt;
+
+&lt;p&gt;{{STARTSEITE}}&lt;/p&gt;</documentation>
+    </userTask>
+    <sequenceFlow id="flow5" sourceRef="servicetask1" targetRef="usertask2"></sequenceFlow>
+    <serviceTask id="servicetask2" name="Nachricht an AS senden" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.NachrichtAnMSBWService">
+      <extensionElements>
+        <activiti:field name="empfaengerId">
+          <activiti:expression><![CDATA[${startedBy}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="senderId">
+          <activiti:expression><![CDATA[${sbServicekontoId}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="betreff">
+          <activiti:expression><![CDATA[Abschlussinformationen zu Ihrem Antrag: ${processName}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression><![CDATA[Guten Tag ${startedByName},
+
+nach sorgfältiger Prüfung sind wir zu dem Entschluss gekommen, dass ihr Antrag "${processName} leider nicht genehmigt wird.
+
+Begründung:
+${begruendung}
+
+Wir bitten diesbezüglich um Ihr Verständnis.
+
+Vorgangsnummer: ${processInstanceId}
+
+Mit freundlichen Grüßen 
+${nameZustaendigeStelle}
+
+
+Hinweis: 
+Dies ist eine automatisch generierte Nachricht.
+Bitte antworten Sie nicht auf diese Nachricht.]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow6" sourceRef="usertask2" targetRef="servicetask2"></sequenceFlow>
+    <userTask id="usertask3" name="Prüfung abgeschlossen: ${processName}" activiti:assignee="${sbServiceKontoId}" activiti:formKey="showOnce">
+      <documentation>Sie haben die Prüfung des Antrags "${processName}" erfolgreich abgeschlossen:
+
+&lt;p&gt;
+&lt;b&gt;Der Antrag wurde genehmigt.&lt;/b&gt;
+
+&lt;b&gt;Sie haben folgende Nachricht an ${startedByName} verfasst:&lt;/b&gt;
+${nachrichtAnAs}
+&lt;/p&gt;
+
+${startedByName} wurde über Ihre Entscheidung bereits informiert.
+
+
+Eine Zusammenfassung des Antrags als PDF-Datei finden Sie im Postfach des Behördenkontos:
+
+&lt;p&gt;{{POSTFACH}}&lt;/p&gt;
+
+Sie können den Antrag innerhalb der nächsten 185 Tage unter &lt;b&gt;Meine elektronischen Anträge&lt;/b&gt; aufrufen:
+Vorgangsnummer: &lt;b&gt;${processInstanceId}&lt;/b&gt;
+
+&lt;p&gt;{{ANTRAEGE}}&lt;/p&gt;
+
+&lt;p&gt;{{STARTSEITE}}&lt;/p&gt;</documentation>
+    </userTask>
+    <serviceTask id="servicetask3" name="Nachricht an AS senden" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.NachrichtAnMSBWService">
+      <extensionElements>
+        <activiti:field name="empfaengerId">
+          <activiti:expression><![CDATA[${startedBy}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="senderId">
+          <activiti:expression><![CDATA[${sbServicekontoId}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="betreff">
+          <activiti:expression><![CDATA[Abschlussinformationen zu Ihrem Antrag: ${processName}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression><![CDATA[Guten Tag ${startedByName},
+
+Ihr Antrag "${processName}" wurde vollständig genehmigt.
+
+${hinweiseAbschluss}
+
+Folgende Nachricht wurde für Sie verfasst:
+
+${NachrichtAnAs}
+
+
+Vorgangsnummer: ${processInstanceId}
+
+Mit freundlichen Grüßen 
+${nameZustaendigeStelle}
+
+Hinweis: 
+Dies ist eine automatisch generierte Nachricht.
+Bitte antworten Sie nicht auf diese Nachricht.]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="anhaenge">
+          <activiti:expression><![CDATA[${pdfSummary}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <serviceTask id="servicetask4" name="PDF-Zusammenfassung erzeugen" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.PdfErstellenService">
+      <extensionElements>
+        <activiti:field name="source">
+          <activiti:expression><![CDATA[${Form_SB}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="target">
+          <activiti:expression><![CDATA[pdfSummary]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow7" sourceRef="servicetask4" targetRef="usertask3"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="usertask3" targetRef="servicetask3"></sequenceFlow>
+    <sequenceFlow id="flow9" name="genehmigt" sourceRef="exclusivegateway2" targetRef="servicetask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${entscheidung == "genehmigt"}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow10" sourceRef="servicetask2" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="servicetask3" targetRef="exclusivegateway3"></sequenceFlow>
+    <serviceTask id="servicetask5" name="Nachricht an SB senden" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.NachrichtAnMSBWService">
+      <extensionElements>
+        <activiti:field name="empfaengerId">
+          <activiti:expression><![CDATA[${sbServiceKontoId}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="senderId">
+          <activiti:expression><![CDATA[${startedBy}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="betreff">
+          <activiti:expression><![CDATA[Bearbeitung abgeschlossen: ${processName} - ${processInstanceId}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression><![CDATA[Guten Tag,
+
+Sie haben die Prüfung des Antrags "${processName}" erfolgreich abgeschlossen.
+
+
+Im Anhang finden Sie den Antrag zur Archivierung auch als PDF-Datei.
+Bitte löschen Sie diese Nachricht, sobald Sie den Antrag archiviert haben.
+
+Den Antrag können Sie innerhalb der nächsten 185 Tage unter "Meine elektronischen Anträge" aufrufen. 
+Vorgangsnummer: ${processInstanceId}.
+
+
+Hinweis: 
+Dies ist eine automatisch generierte Nachricht.
+Bitte antworten Sie nicht auf diese Nachricht.]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="anhaenge">
+          <activiti:expression><![CDATA[${pdfSummary}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow12" sourceRef="exclusivegateway3" targetRef="servicetask5"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow13" sourceRef="servicetask5" targetRef="endevent1"></sequenceFlow>
+    <userTask id="usertask4" name="Prüfung abgeschlossen: ${processName}" activiti:assignee="${sbServiceKontoId}" activiti:formKey="showOnce">
+      <documentation>Sie haben die Prüfung des Antrags "${processName}" erfolgreich abgeschlossen:
+
+&lt;p&gt;
+&lt;b&gt;Ihre Rückfragen wurden ${startedByName} automatisch zugestellt.&lt;/b&gt;
+Sobald der Antrag von ${startedByName} nachbearbeitet wurde, werden Sie über das Postfach darüber benachrichtigt.
+&lt;/p&gt;
+
+&lt;p&gt;{{POSTFACH}}&lt;/p&gt;
+
+Sie können den Antrag jederzeit unter &lt;b&gt;Meine elektronischen Anträge&lt;/b&gt; aufrufen:
+Vorgangsnummer: &lt;b&gt;${processInstanceId}&lt;/b&gt;
+
+&lt;p&gt;{{ANTRAEGE}}&lt;/p&gt;
+
+&lt;p&gt;{{STARTSEITE}}&lt;/p&gt;</documentation>
+    </userTask>
+    <sequenceFlow id="flow14" name="Rückfragen" sourceRef="exclusivegateway2" targetRef="usertask4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${entscheidung == "rueckfragen"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask6" name="Nachricht an AS senden" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.NachrichtAnMSBWService">
+      <extensionElements>
+        <activiti:field name="empfaengerId">
+          <activiti:expression><![CDATA[${startedBy}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="senderId">
+          <activiti:expression><![CDATA[${sbServicekontoId}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="betreff">
+          <activiti:expression><![CDATA[Rückfragen zu Ihrem Antrag: ${processName}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression><![CDATA[Guten Tag ${startedByName},
+
+um Ihren Antrag "${processName}" bearbeiten zu können, benötigen wir von Ihnen weitere Informationen.
+Bitte sehen Sie sich unsere Rückfragen an und überarbeiten Ihren Antrag.
+
+Ihren Antrag und unsere Rückfragen können Sie direkt hier einsehen:
+
+{{LINK_AUF_AKTUELLEN_PROZESS}}
+
+
+Vorgangsnummer: ${processInstanceId}
+
+Mit freundlichen Grüßen 
+${nameZustaendigeStelle}
+
+
+Hinweis: 
+Dies ist eine automatisch generierte Nachricht.
+Bitte antworten Sie nicht auf diese Nachricht.]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow15" sourceRef="usertask4" targetRef="servicetask6"></sequenceFlow>
+    <scriptTask id="scripttask1" name="Antrag zurückziehbar" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>execution.setVariable("killable", true)</script>
+    </scriptTask>
+    <sequenceFlow id="flow16" sourceRef="servicetask6" targetRef="scripttask1"></sequenceFlow>
+    <userTask id="usertask5" name="Rückfragen beantworten" activiti:assignee="${startedBy}" activiti:formKey="formular:${formularRueckfragen}"></userTask>
+    <scriptTask id="scripttask2" name="Zusammenfassung erstellen" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>// Creates a summary of the form as a HTML-string.
+
+String processInstanceId = execution.getVariable("processInstanceId") as String
+FormContent formContent = execution.getVariable("Form_AS") as FormContent
+FormDumper formDumper = new FormDumper(formContent)
+String formHtml = formDumper.dumpFormAsHtmlTable(processInstanceId, "de", 3)</script>
+    </scriptTask>
+    <sequenceFlow id="flow18" sourceRef="usertask5" targetRef="scripttask2"></sequenceFlow>
+    <userTask id="usertask6" name="Zusammenfassung: ${processName}" activiti:assignee="${startedBy}" activiti:formKey="formular:3:Zusammenfassung:v1.0:de"></userTask>
+    <sequenceFlow id="flow19" sourceRef="scripttask2" targetRef="usertask6"></sequenceFlow>
+    <scriptTask id="scripttask3" name="Antrag nicht mehr zurückziehbar" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>execution.setVariable("killable", false)</script>
+    </scriptTask>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow20" sourceRef="scripttask1" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow21" sourceRef="exclusivegateway4" targetRef="usertask5"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow22" sourceRef="usertask6" targetRef="exclusivegateway5"></sequenceFlow>
+    <sequenceFlow id="flow23" name="Antrag absenden" sourceRef="exclusivegateway5" targetRef="scripttask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${next == "submit"}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow24" name="Antrag überarbeiten" sourceRef="exclusivegateway5" targetRef="exclusivegateway4">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${next == "edit"}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="servicetask7" name="PDF-Zusammenfassung erzeugen" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.PdfErstellenService">
+      <extensionElements>
+        <activiti:field name="source">
+          <activiti:expression><![CDATA[${Form_AS}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="target">
+          <activiti:expression><![CDATA[pdfSummary]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow25" sourceRef="scripttask3" targetRef="servicetask7"></sequenceFlow>
+    <serviceTask id="servicetask8" name="Nachricht an SB senden" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.NachrichtAnMSBWService">
+      <extensionElements>
+        <activiti:field name="empfaengerId">
+          <activiti:expression><![CDATA[${sbServiceKontoId}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="senderId">
+          <activiti:expression><![CDATA[${startedBy}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="betreff">
+          <activiti:expression><![CDATA[Antrag überarbeitet: ${processName}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="text">
+          <activiti:expression><![CDATA[Guten Tag,
+
+der Antrag "${processName}" wurde von ${startedByName} überarbeitet.
+
+
+Hier können Sie den Antrag direkt ansehen und bearbeiten:
+{{LINK_AUF_AKTUELLEN_PROZESS}}
+
+
+Im Anhang finden Sie den Antrag ebenfalls als PDF-Datei.
+Bitte löschen Sie diese Nachricht, sobald Sie den Antrag bearbeitet haben.
+
+
+Hinweis: 
+Dies ist eine automatisch generierte Nachricht.
+Bitte antworten Sie nicht auf diese Nachricht.]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="anhaenge">
+          <activiti:expression><![CDATA[${pdfSummary}]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow26" sourceRef="servicetask7" targetRef="servicetask8"></sequenceFlow>
+    <userTask id="usertask7" name="Eingangsbestätigung: ${processName}" activiti:assignee="${startedBy}" activiti:formKey="showOnce">
+      <documentation>Vielen Dank für die Überarbeitung Ihres Antrags.
+Wir melden uns sobald wie möglich bei Ihnen.
+
+Ihren Antrag können Sie direkt unter &lt;b&gt;Meine elektronischen Anträge&lt;/b&gt; einsehen:
+{{ANTRAEGE}}
+
+Vorgangsnummer:
+${processInstanceId}
+
+Zur Startseite:
+{{STARTSEITE}}
+
+Mit freundlichen Grüßen
+${nameZustaendigeStelle}
+
+${logo}</documentation>
+    </userTask>
+    <sequenceFlow id="flow27" sourceRef="servicetask8" targetRef="usertask7"></sequenceFlow>
+    <sequenceFlow id="flow28" sourceRef="usertask7" targetRef="exclusivegateway1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway6" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow29" name="Parameter übergeben" sourceRef="exclusivegateway6" targetRef="exclusivegateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[$ { empty errorMessage }]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask8" name="Fehler beim Start des Moduls &quot;Sachbearbeitung&quot;" activiti:assignee="${startedBy}" activiti:formKey="showOnce" activiti:skipExpression="${ empty sbServicekontoId }"></userTask>
+    <sequenceFlow id="flow30" name="Parameter fehlt" sourceRef="exclusivegateway6" targetRef="usertask8">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[$ { not empty errorMessage }]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="errorendevent1" name="ErrorEnd">
+      <errorEventDefinition></errorEventDefinition>
+    </endEvent>
+    <sequenceFlow id="flow31" sourceRef="usertask8" targetRef="errorendevent1"></sequenceFlow>
+    <scriptTask id="scripttask4" name="Prüfen, ob alle notwendigen Parameter übergeben wurden" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import org.activiti.engine.delegate.DelegateExecution
+
+String [] processParameters = ["Form_AS", "formularSB", "nameZustaendigeStelle", "processInstanceId", "processName", "sbServicekontoId", "startedBy", "startedByName", ]
+String errorMessage = ""
+String buffer = ""
+
+// Check, if all manadatory process parameters have been set.
+for (item in processParameters) {
+    buffer = execution.getVariable(item) as String
+
+    if(buffer == null || buffer.trim().isEmpty() == true) {
+        errorMessage += "\n Der folgende Parameter wurde nicht übergeben:''" + item + "'"
+    }
+}
+
+if(errorMessage != "") {
+    logger = org.slf4j.LoggerFactory.getLogger("de.seitenbau.serviceportal.prozess.cml")
+    logger.error(errorMessage)
+}
+
+execution.setVariable("errorMessage", errorMessage)</script>
+    </scriptTask>
+    <sequenceFlow id="flow32" sourceRef="scripttask4" targetRef="exclusivegateway6"></sequenceFlow>
+    <sequenceFlow id="flow33" sourceRef="startevent1" targetRef="scripttask4"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_m3.1201cml.sachbearbeitung">
+    <bpmndi:BPMNPlane bpmnElement="m3.1201cml.sachbearbeitung" id="BPMNPlane_m3.1201cml.sachbearbeitung">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="364.0" y="197.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="434.0" y="187.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="584.0" y="197.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="694.0" y="187.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
+        <omgdc:Bounds height="61.0" width="141.0" x="844.0" y="187.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask2" id="BPMNShape_servicetask2">
+        <omgdc:Bounds height="61.0" width="121.0" x="1014.0" y="187.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
+        <omgdc:Bounds height="61.0" width="141.0" x="843.0" y="81.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask3" id="BPMNShape_servicetask3">
+        <omgdc:Bounds height="61.0" width="121.0" x="1011.0" y="81.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask4" id="BPMNShape_servicetask4">
+        <omgdc:Bounds height="61.0" width="121.0" x="691.0" y="81.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="1161.0" y="197.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
+        <omgdc:Bounds height="61.0" width="121.0" x="1231.0" y="187.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1381.0" y="200.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask4" id="BPMNShape_usertask4">
+        <omgdc:Bounds height="61.0" width="141.0" x="534.0" y="291.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="381.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="471.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask5" id="BPMNShape_usertask5">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="623.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="711.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask6" id="BPMNShape_usertask6">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="801.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="981.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="584.0" y="561.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="584.0" y="891.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask7" id="BPMNShape_servicetask7">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="1071.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask8" id="BPMNShape_servicetask8">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="1161.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask7" id="BPMNShape_usertask7">
+        <omgdc:Bounds height="61.0" width="121.0" x="544.0" y="1251.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway6" id="BPMNShape_exclusivegateway6">
+        <omgdc:Bounds height="40.0" width="40.0" x="251.0" y="197.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask8" id="BPMNShape_usertask8">
+        <omgdc:Bounds height="61.0" width="121.0" x="211.0" y="61.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="errorendevent1" id="BPMNShape_errorendevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="254.0" y="1.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
+        <omgdc:Bounds height="61.0" width="151.0" x="71.0" y="187.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="404.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="434.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="555.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="584.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="624.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="694.0" y="217.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="47.0" x="624.0" y="217.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="815.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="844.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="985.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1014.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="812.0" y="111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="843.0" y="111.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="984.0" y="111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1011.0" y="111.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="604.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="603.0" y="111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="691.0" y="111.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="49.0" x="612.0" y="112.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="1135.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1161.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="1132.0" y="111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1181.0" y="111.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1181.0" y="197.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="1201.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1231.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="1352.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1381.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="604.0" y="237.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="291.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="56.0" x="611.0" y="250.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="604.0" y="352.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="381.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="604.0" y="442.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="471.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="604.0" y="684.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="711.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
+        <omgdi:waypoint x="604.0" y="772.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="801.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
+        <omgdi:waypoint x="604.0" y="532.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="561.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
+        <omgdi:waypoint x="604.0" y="601.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="623.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="604.0" y="862.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="891.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow23" id="BPMNEdge_flow23">
+        <omgdi:waypoint x="604.0" y="931.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="981.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="84.0" x="611.0" y="940.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow24" id="BPMNEdge_flow24">
+        <omgdi:waypoint x="624.0" y="911.0"></omgdi:waypoint>
+        <omgdi:waypoint x="751.0" y="911.0"></omgdi:waypoint>
+        <omgdi:waypoint x="751.0" y="740.0"></omgdi:waypoint>
+        <omgdi:waypoint x="751.0" y="581.0"></omgdi:waypoint>
+        <omgdi:waypoint x="624.0" y="581.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="97.0" x="624.0" y="911.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow25" id="BPMNEdge_flow25">
+        <omgdi:waypoint x="604.0" y="1042.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="1071.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow26" id="BPMNEdge_flow26">
+        <omgdi:waypoint x="604.0" y="1132.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="1161.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="604.0" y="1222.0"></omgdi:waypoint>
+        <omgdi:waypoint x="604.0" y="1251.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
+        <omgdi:waypoint x="544.0" y="1281.0"></omgdi:waypoint>
+        <omgdi:waypoint x="519.0" y="1281.0"></omgdi:waypoint>
+        <omgdi:waypoint x="384.0" y="237.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="291.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="364.0" y="217.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="291.0" y="217.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="271.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="271.0" y="122.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="73.0" x="281.0" y="162.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow31" id="BPMNEdge_flow31">
+        <omgdi:waypoint x="271.0" y="61.0"></omgdi:waypoint>
+        <omgdi:waypoint x="271.0" y="36.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow32" id="BPMNEdge_flow32">
+        <omgdi:waypoint x="222.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="251.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="36.0" y="217.0"></omgdi:waypoint>
+        <omgdi:waypoint x="71.0" y="217.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

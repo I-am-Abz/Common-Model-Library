@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="ELEKTRONISCHER_ANTRAG">
+  <process id="pProzessmodellID" name="Name Antrag" isExecutable="true">
+    <documentation>Nicht vergessen, die ID des Prozessmodells zu ändern!</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <scriptTask id="scripttask1" name="Prozessparameter auslesen" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import de.seitenbau.serviceportal.prozess.scripttask.ProzessParameterReader
+
+
+// Prozessparameter die ausgelesen und verwendet werden sollen.
+String[] parameters = ["eIdLogin", "formularAS", "formularRueckfragen", "formularSB", "nameZustaendigeStelle",  "logo"]
+
+//Liest Prozesssparameter aus und erzeugt entsprechende Prozessinstanzvariablen -&gt; Damit die Werte im weiteren Prozessverlauf nutzbar sind.
+for (item in parameters) {
+    def value = ProzessParameterReader.getProcessParameter(item)
+    execution.setVariable(item, value)
+}</script>
+    </scriptTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="scripttask1"></sequenceFlow>
+    <scriptTask id="scripttask2" name="Texte definieren" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>// Wird den Antragstellern vor dem Start des Formulars angezeigt.
+// HTML möglich.
+String hinweiseAntragstellung = """ """
+
+execution.setVariable("hinweiseAntragstellung", hinweiseAntragstellung)
+
+// Wird den Antragstellern nachdem Absenden des Formulars angezeigt.
+// HTML möglich.
+String hinweiseWeitererAblauf = """ """
+
+execution.setVariable("hinweiseWeitererAblauf", hinweiseWeitererAblauf)
+
+// Wird den Antragstellern in der abschließenden Servicekontonachricht nach der Genehmigung des Antrags angezeigt.
+// kein HTML möglich.
+String hinweiseAbschluss = """ """
+
+execution.setVariable("hinweiseAbschluss", hinweiseAbschluss)</script>
+    </scriptTask>
+    <sequenceFlow id="flow2" sourceRef="scripttask1" targetRef="scripttask2"></sequenceFlow>
+    <callActivity id="callactivity1" name="Antrag ausführen" calledElement="m3.1201.cml.starter">
+      <extensionElements>
+        <activiti:in source="eIdLogin" target="eIdLogin"></activiti:in>
+        <activiti:in source="formularAS" target="formularAS"></activiti:in>
+        <activiti:in source="formularRueckfragen" target="formularRueckfragen"></activiti:in>
+        <activiti:in source="formularSB" target="formularSB"></activiti:in>
+        <activiti:in source="hinweiseAntragstellung" target="hinweiseAntragstellung"></activiti:in>
+        <activiti:in source="hinweiseWeitererAblauf" target="hinweiseWeitererAblauf"></activiti:in>
+        <activiti:in source="hinweiseAbschluss" target="hinweiseAbschluss"></activiti:in>
+        <activiti:in source="leistung" target="leistung"></activiti:in>
+        <activiti:in source="logo" target="logo"></activiti:in>
+        <activiti:in source="nameZustaendigeStelle" target="nameZustaendigeStelle"></activiti:in>
+        <activiti:in source="region" target="region"></activiti:in>
+        <activiti:in source="startedBy" target="startedBy"></activiti:in>
+        <activiti:in source="startedByName" target="startedByName"></activiti:in>
+        <activiti:in source="processInstanceId" target="processInstanceId"></activiti:in>
+        <activiti:in source="processName" target="processName"></activiti:in>
+      </extensionElements>
+    </callActivity>
+    <sequenceFlow id="flow3" sourceRef="scripttask2" targetRef="callactivity1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow4" sourceRef="callactivity1" targetRef="endevent1"></sequenceFlow>
+    <textAnnotation id="textannotation1">
+      <text>Hier können die Texte definiert werden, die im Verlauf des Antrags angezeigt werden.</text>
+    </textAnnotation>
+    <association id="association1" sourceRef="scripttask2" targetRef="textannotation1"></association>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_pProzessmodellID">
+    <bpmndi:BPMNPlane bpmnElement="pProzessmodellID" id="BPMNPlane_pProzessmodellID">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="40.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="100.0" y="97.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="61.0" width="121.0" x="250.0" y="97.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
+        <omgdc:Bounds height="61.0" width="121.0" x="400.0" y="97.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="550.0" y="110.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation1" id="BPMNShape_textannotation1">
+        <omgdc:Bounds height="61.0" width="171.0" x="280.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="75.0" y="127.0"></omgdi:waypoint>
+        <omgdi:waypoint x="100.0" y="127.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="221.0" y="127.0"></omgdi:waypoint>
+        <omgdi:waypoint x="250.0" y="127.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="371.0" y="127.0"></omgdi:waypoint>
+        <omgdi:waypoint x="400.0" y="127.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="521.0" y="127.0"></omgdi:waypoint>
+        <omgdi:waypoint x="550.0" y="127.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="association1" id="BPMNEdge_association1">
+        <omgdi:waypoint x="310.0" y="158.0"></omgdi:waypoint>
+        <omgdi:waypoint x="365.0" y="210.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>
