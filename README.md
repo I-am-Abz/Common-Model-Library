@@ -79,7 +79,7 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 | Name                     | Erläuterung                                                                                                                          |
 | -----------              | -----------                                                                                                                          |
-| eIdLogin                 | Falls "true" muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden                                  |
+| eIdLogin                 | Falls "true" muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden.                                 |
 | formularAS (\*)          | ID des Formulars, das dem Bürger angezeigt werden soll. (Format: '{Mandanten-ID}:{Formular-ID}:{Version}')                           |
 | hinweiseAntragstellung   | Wird dem Bürger vor dem Formular angezeigt ("Was muss der Bürger für den Antrag beachten?" Welche Nachweise muss er bereithalten?)   |
 | hinweiseWeitererAblauf   | Wird dem Bürger nachdem Absenden des Formulars angezeigt. ("Wie geht es mit dem Antrag weiter?")                                     |
@@ -125,5 +125,20 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 ## 5 - Funktionen
 
 ### 5a - Funktion: AttachmentProcessor
+**Key:** m3.1201.cml.attachmentProcessor
+
+| Name                     | Erläuterung                                                                                    |
+| -----------              | -----------                                                                                    |
+| form (\*)                | Das Formular, aus dem die PDF-Zusammenfassung generiert werden soll. (als FormContent-Objekt)  |
+| onlySummary              | Falls "true" wird nur die Zusammenfassung erstellt. Weitere Anhänge bleiben unberücksichtigt.  |
+| processName (\*)         | Name des Prozesses (z.B. "Geburtsurkunde beantragen").                                         |
+
+
+
+**Output-Parameter:**
+| Name                     | Wert (falls bekannt) | Erläuterung                                                                                    |
+| -----------              | -----------          | -----------                                                                                    |
+| attachments              | (BinaryContent-Array | Objekt aller beigefügten Dateien (+ Zusammenfassung). In Servicekonto-nachrichten verwendbar.  |
+
 
 ## 6 Lizenz, Vorschläge etc.
