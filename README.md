@@ -10,7 +10,7 @@
    - [4c - Modul: Sachbearbeitung](#4c---modul--sachbearbeitung)
 - [5 - Funktionen](#5---funktionen)
    - [5a - Funktion: AttachmentProcessor](#5a---funktion--attachmentprocessor)
-- [6 Lizenz, Vorschläge etc.](#6---Lizenz---Vorschläge---etc)
+- [6 Lizenz, Vorschläge etc.](#6---Lizenz-Vorschläge-etc)
 
 ## 1 - Warum CML?
 Der Service-BW-Prozessdesigner ist ein mächtiges Tool, mit dem Kommunen beliebig komplexe Online-Anträge umsetzen können.
