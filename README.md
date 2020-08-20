@@ -2,15 +2,15 @@
 ![Logo of Stadt Freiburg i. Br.](/img/logo_freiburg.gif) 
 
 ## Inhaltsverzeichnis
-- [1 - Warum CML?](#1---warum-cml-)
+- [1 - Warum CML?](#1---warum-cml)
 - [2 - Quickstart-Anleitung](#2---quickstart-anleitung)
-- [3 - Komplexe Prozesse designen](#3---komplexe-prozesse-designen)
-   - [3a - Modul: Konfiguration](#3a---modul--konfiguration)
-   - [3b - Modul: Antrag](#3b---modul--antrag)
-   - [3c - Modul: Sachbearbeitung](#3c---modul--sachbearbeitung)
-- [4 - Funktionen](#4---funktionen)
-   - [4a - Funktion: AttachmentProcessor](#4a---funktion--attachmentprocessor)
-- [5 Kontakt](#5-kontakt)
+- [4 - Komplexe Prozesse designen](#4---komplexe-prozesse-designen)
+   - [4a - Modul: Konfiguration](#4a---modul--konfiguration)
+   - [4b - Modul: Antrag](#4b---modul--antrag)
+   - [4c - Modul: Sachbearbeitung](#4c---modul--sachbearbeitung)
+- [5 - Funktionen](#5---funktionen)
+   - [5a - Funktion: AttachmentProcessor](#5a---funktion--attachmentprocessor)
+- [6 Lizenz, Vorschläge etc.](#6---Lizenz---Vorschläge---etc)
 
 ## 1 - Warum CML?
 Der Service-BW-Prozessdesigner ist ein mächtiges Tool, mit dem Kommunen beliebig komplexe Online-Anträge umsetzen können.
@@ -50,9 +50,11 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 ## 2 - Quickstart-Anleitung
 
-## 3 - Komplexe Prozesse designen
+## 3 - Voraussetzungen an die Formulare 
 
-### 3a - Modul: Konfiguration
+## 4 - Komplexe Prozesse designen
+
+### 4a - Modul: Konfiguration
 
 **Input-Parameter:**
 | Name        | Beschreibung|
@@ -60,12 +62,12 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 | Header      | Title       |
 | Paragraph   | Text        |
 
-### 3b - Modul: Antrag
+### 4b - Modul: Antrag
 
-### 3c - Modul: Sachbearbeitung
+### 4c - Modul: Sachbearbeitung
 
-## 4 - Funktionen
+## 5 - Funktionen
 
-### 4a - Funktion: AttachmentProcessor
+### 5a - Funktion: AttachmentProcessor
 
-## 5 Kontakt
+## 6 Lizenz, Vorschläge etc.
