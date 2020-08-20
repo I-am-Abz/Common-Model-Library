@@ -54,6 +54,12 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 ### 3a - Modul: Konfiguration
 
+**Input-Parameter:**
+| Name        | Beschreibung|
+| ----------- | ----------- |
+| Header      | Title       |
+| Paragraph   | Text        |
+
 ### 3b - Modul: Antrag
 
 ### 3c - Modul: Sachbearbeitung
