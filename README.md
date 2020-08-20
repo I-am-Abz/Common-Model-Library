@@ -136,9 +136,9 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 
 **Output-Parameter:**
-| Name                     | Wert (falls bekannt) | Erläuterung                                                                                    |
-| -----------              | -----------          | -----------                                                                                    |
-| attachments              | (BinaryContent-Array | Objekt aller beigefügten Dateien (+ Zusammenfassung). In Servicekonto-nachrichten verwendbar.  |
+| Name                     | Wert (falls bekannt)   | Erläuterung                                                                                    |
+| -----------              | -----------            | -----------                                                                                    |
+| attachments              | (BinaryContent-Array)  | Objekt aller beigefügten Dateien (+ Zusammenfassung). In Servicekonto-nachrichten verwendbar.  |
 
 
 ## 6 Lizenz, Vorschläge etc.
