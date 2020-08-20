@@ -17,19 +17,19 @@ Schließlich folgen die meisten Anträge eigentlich einem einheitlichen Ablaufsc
 1. Antragstellung durch Bürger
 2. Prüfung durch zuständige Stelle
 3. Entscheidung durch zuständige Stelle
-4. Erbringung der beantragten Leistung z.B. Zustellung einer Erlaubnis
+4. Erbringung der beantragten Leistung (z.B. Zustellung einer Erlaubnis)
 
-Die CML greift genau diesen Gedanken auf und hilft die dabei die Entwicklungszeit für Service-BW-Prozesse drastisch zu verkürzen.\
-Prozessmodelle, die dem obigen Ablaufschema entsprechen, sind in wenigen Klicks erstellt:\
-\
+Die **CML** greift genau diesen Gedanken auf und hilft die dabei die **Entwicklungszeit für Service-BW-Prozesse drastisch zu verkürzen.**
+Prozessmodelle, die dem obigen Ablaufschema entsprechen, sind in wenigen Klicks erstellt:
+
 Es muss nur der Prozess konfiguriert ggf. Hinweistexte eingepflegt werden.\
-Den Rest erledigt die CML!\
-\
+Den Rest erledigt die CML!
+
 Aber auch komplexe Anträge, die sich nicht einfach so in ein abtraktes Schema pressen lassen, können mithilfe der CML umgesetzt werden.\
-Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist dadurch wiederverwendbar... Siehe Anleitungen ab Abschnitt 3\
-\
+Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist dadurch wiederverwendbar...\
+(Siehe Anleitungen ab Abschnitt 3)
+
 Die wichtigsten Vorteile der CML zusammengefasst:
--
 
 ## 2 - Quickstart-Anleitung
 
