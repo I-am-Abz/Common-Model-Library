@@ -59,47 +59,68 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 
 **Input-Parameter:** (Pflichtparameter  mit \*)
-| Name                   | Erläuterung                                                                                                                             |
-| -----------            | -----------                                                                                                                             |
-| leistung (\*)          | ID der Leistung, aus der derProzess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                       |
-| region (\*)            | ID der Leistung, aus der derProzess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                       |
-| sbServicekontoId       | ID des Behördenkontos, falls das zuständige Behördenkonto nicht ausgelesen werden kann.                                                 |
-| startedBy (\*)         | User-ID des Antragstellers. Dieser bekommt eventuell Fehlermeldungen angezeigt, falls dieser keine Region oder Leistung ausgewählt hat  |
+| Name                     | Erläuterung                                                                                                                             |
+| -----------              | -----------                                                                                                                             |
+| leistung (\*)            | ID der Leistung, aus der derProzess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                       |
+| region (\*)              | ID der Leistung, aus der derProzess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                       |
+| sbServicekontoId         | ID des Behördenkontos, falls das zuständige Behördenkonto nicht ausgelesen werden kann.                                                 |
+| startedBy (\*)           | User-ID des Antragstellers. Dieser bekommt eventuell Fehlermeldungen angezeigt, falls dieser keine Region oder Leistung ausgewählt hat  |
 
 
 **Output-Parameter:**
-| Name                   | Wert (falls bekannt) | Erläuterung                                                                |
-| -----------            | -----------          | -----------                                                                |
-| sbServicekontoId       |                      | ID des Behördenkontos, das für die spätere Sachbearbeitung zuständig ist.  |
-| killable               | "true"               | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.       |
+| Name                     | Wert (falls bekannt) | Erläuterung                                                                |
+| -----------              | -----------          | -----------                                                                |
+| sbServicekontoId         |                      | ID des Behördenkontos, das für die spätere Sachbearbeitung zuständig ist.  |
+| killable                 | "true"               | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.       |
+
 
 ### 4b - Modul: Antrag
 **Key:** m3.1201.cml.antrag
 
-| Name                   | Erläuterung                                                                                                                          |
-| -----------            | -----------                                                                                                                          |
-| eIdLogin               | Falls "true" muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden                                  |
-| formularAS (\*)        | ID des Formulars, das dem Bürger angezeigt werden soll. (Format: '{Mandanten-ID}:{Formular-ID}:{Version}' )                         |
-| hinweiseAntragstellung | Wird dem Bürger vor dem Formular angezeigt ("Was muss der Bürger für den Antrag beachten?" Welche Nachweise muss er bereithalten?)   |
-| hinweiseWeitererAblauf | Wird dem Bürger nachdem Absenden des Formulars angezeigt. ("Wie geht es mit dem Antrag weiter?")                                     |
-| killable               | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.                                                                 |
-| logo                   | Logo der Behörde. (Am besten als Link. Auch Base64-Codierte Grafiken sind möglich.)                                                  |
-| nameZustaendigeStelle  | Name der zuständigen Behörde (Falls nicht gesetzt, wird "Serviceportal Baden-Württemberg" an den entsprechenden Stellen angezeigt.)  |
-| processInstanceId (\*) | Vorgangsnummer.                                                                                                                      |
-| processName (\*)       | Name des Prozesses (z.B. "Geburtsurkunde beantragen").                                                                               |
-| sbServicekontoId (\*)  | ID des Behördenkontos, das für die spätere Sachbearbeitung zuständig ist.                                                            |
-| startedBy (\*)         | User-ID des Antragstellers.                                                                                                          |
-| startedByName (\*)     | Name des Antragstellers.                                                                                                             |
+| Name                     | Erläuterung                                                                                                                          |
+| -----------              | -----------                                                                                                                          |
+| eIdLogin                 | Falls "true" muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden                                  |
+| formularAS (\*)          | ID des Formulars, das dem Bürger angezeigt werden soll. (Format: '{Mandanten-ID}:{Formular-ID}:{Version}')                           |
+| hinweiseAntragstellung   | Wird dem Bürger vor dem Formular angezeigt ("Was muss der Bürger für den Antrag beachten?" Welche Nachweise muss er bereithalten?)   |
+| hinweiseWeitererAblauf   | Wird dem Bürger nachdem Absenden des Formulars angezeigt. ("Wie geht es mit dem Antrag weiter?")                                     |
+| killable                 | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.                                                                 |
+| logo                     | Logo der Behörde. (Am besten als Link. Auch Base64-Codierte Grafiken sind möglich.)                                                  |
+| nameZustaendigeStelle    | Name der zuständigen Behörde (Falls nicht gesetzt, wird "Serviceportal Baden-Württemberg" an den entsprechenden Stellen angezeigt.)  |
+| processInstanceId (\*)   | Vorgangsnummer.                                                                                                                      |
+| processName (\*)         | Name des Prozesses (z.B. "Geburtsurkunde beantragen").                                                                               |
+| sbServicekontoId (\*)    | ID des Behördenkontos, das für die spätere Sachbearbeitung zuständig ist.                                                            |
+| startedBy (\*)           | User-ID des Antragstellers.                                                                                                          |
+| startedByName (\*)       | Name des Antragstellers.                                                                                                             |
 
 
 **Output-Parameter:**
-| Name                   | Wert (falls bekannt) | Erläuterung                                                           |
-| -----------            | -----------          | -----------                                                           |
-| Form                   |                      | Das vom Bürger ausgefüllte Formular als FormContent-Objekt.           |
-| killable               | "false"              | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.  |
+| Name                     | Wert (falls bekannt) | Erläuterung                                                           |
+| -----------              | -----------          | -----------                                                           |
+| Form                     |                      | Das vom Bürger ausgefüllte Formular als FormContent-Objekt.           |
+| killable                 | "false"              | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.  |
 
 
 ### 4c - Modul: Sachbearbeitung
+
+**Key:** m3.1201.cml.sachbearbeitung
+
+| Name                     | Erläuterung                                                                                                                          |
+| -----------              | -----------                                                                                                                          |
+| Form (\*)                | Das vom Bürger ausgefüllte Formular als FormContent-Objekt.                                                                          |
+| formularSB (\*)          | ID des Formulars, das der Sachbearbeitung angezeigt werden soll. (Format: '{Mandanten-ID}:{Formular-ID}:{Version}')                  |
+| formularRueckfragen (\*) | ID des Formulars, das dem Bürger bei Rückfragen angezeigt werden soll. (Format: '{Mandanten-ID}:{Formular-ID}:{Version}')            |
+| hinweiseAbholung         | Wird dem Bürger in der abschließenden Servicekonto-Nachricht angezeigt.  (z.B. Link auf OE mit Öffnungszeiten)                       |
+| hinweiseAbschluss        | Wird dem Bürger in der abschließenden Servicekonto-Nachricht angezeigt.                                                              |
+| hinweiseWeitererAblauf   | Wird dem Bürger nachdem Absenden des Formulars (Rückfragen) angezeigt. ("Wie geht es mit dem Antrag weiter?")                        |
+| killable                 | Falls "true", kann der Antrag durch z.B. den Bürger gelöscht werden.                                                                 |
+| logo                     | Logo der Behörde. (Am besten als Link. Auch Base64-Codierte Grafiken sind möglich.)                                                  |
+| nameZustaendigeStelle    | Name der zuständigen Behörde (Falls nicht gesetzt, wird "Serviceportal Baden-Württemberg" an den entsprechenden Stellen angezeigt.)  |
+| processInstanceId (\*)   | Vorgangsnummer.                                                                                                                      |
+| processName (\*)         | Name des Prozesses (z.B. "Geburtsurkunde beantragen").                                                                               |
+| sbServicekontoId (\*)    | ID des Behördenkontos, das für die spätere Sachbearbeitung zuständig ist.                                                            |
+| startedBy (\*)           | User-ID des Antragstellers.                                                                                                          |
+| startedByName (\*)       | Name des Antragstellers.                                                                                                             |
+
 
 ## 5 - Funktionen
 
