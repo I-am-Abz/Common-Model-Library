@@ -14,10 +14,10 @@
 
 ## 1 - Warum CML?
 Der Service-BW-Prozessdesigner ist ein mächtiges Tool, mit dem Kommunen beliebig komplexe Online-Anträge umsetzen können.
-Selbst Details wie "Wann wird der Bürger benachrichtigt" können frei gestaltet werden.\
+Selbst Details wie "Wann wird der Bürger benachrichtigt?" können frei gestaltet werden.\
 \
 Die Grundlage dafür bildet das sog. Prozessmodell, indem alle Aktivitäten des Prozesses definiert sind.\
-Auf Grund der vielfältigen Möglichkeiten ist die Entwicklung eines solchen Prozessmodells jedoch ebenso komplex.\
+Auf Grund der vielfältigen Möglichkeiten ist die Entwicklung eines solchen Prozessmodells jedoch enorm komplex.\
 Die Entwicklung eines Prozessmodells von "0 auf 100" kostet somit sehr viel Zeit.\
 \
 Dabei ist es jedoch gar nicht nötig jeden Prozess von "0 auf 100" neu zu entwickeln.\
