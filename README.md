@@ -45,8 +45,7 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 - Best-Practices (der Stadt Freiburg) sind direkt in die CML integriert
 - Konform zu den aktuellen Qualitätskriterien des Innenministerium BW
 - Automatische Benachrichtung der Bürger und Sachbearbeiter
-- Der Bürger erhält vor dem Absenden des Antrags eine übersichtliche Zusammenfassung
-- Unterstützung bei der Einrichtung durch integrierte Fehlerbehandlung
+- Der Bürger erhält vor dem Absenden des Antrags eine Zusammenfassung des Antrags
 
 
 ## 2 - Quickstart-Anleitung
