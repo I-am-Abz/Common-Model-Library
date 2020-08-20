@@ -38,7 +38,15 @@ Aber auch komplexe Anträge, die sich nicht einfach so in ein abtraktes Schema p
 Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist dadurch wiederverwendbar...\
 (Siehe Anleitungen ab Abschnitt 3)
 
-Die wichtigsten Vorteile der CML zusammengefasst:
+**Die wichtigsten Vorteile der CML auf einen Blick:**
+- Einfache Prozesse sind mit wenigen Klicks erstellt
+- Auch komplexe Prozesse können relativ einfach umgesetzt werden
+- Best-Practices (der Stadt Freiburg) sind direkt in die CML integriert
+- Konform zu den aktuellen Qualitätskriterien des Innenministerium BW
+- Automatische Benachrichtung der Bürger und Sachbearbeiter
+- Der Bürger erhält vor dem Absenden des Antrags eine übersichtliche Zusammenfassung
+- Unterstützung bei der Einrichtung durch integrierte Fehlerbehandlung
+
 
 ## 2 - Quickstart-Anleitung
 
