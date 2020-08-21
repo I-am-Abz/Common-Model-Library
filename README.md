@@ -183,8 +183,8 @@ Näheres dazu finden Sie in [4 - Komplexe Prozesse designen](#4---komplexe-proze
 **Input-Parameter:** (Pflichtparameter  mit \*)
 | Name                     | Erläuterung                                                                                                                             |
 | -----------              | -----------                                                                                                                             |
-| leistung (\*)            | ID der Leistung, aus der derProzess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                       |
-| region (\*)              | ID der Leistung, aus der derProzess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                       |
+| leistung (\*)            | ID der Leistung, aus der der Prozess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                      |
+| region (\*)              | ID der Leistung, aus der der Prozess gestartet wurde. Wird benötigt, um das zuständige Behördenkonto zu ermitteln.                      |
 | sbServicekontoId         | ID des Behördenkontos, falls das zuständige Behördenkonto nicht ausgelesen werden kann.                                                 |
 | startedBy (\*)           | User-ID des Antragstellers. Dieser bekommt eventuell Fehlermeldungen angezeigt, falls dieser keine Region oder Leistung ausgewählt hat  |
 
@@ -205,7 +205,7 @@ Näheres dazu finden Sie in [4 - Komplexe Prozesse designen](#4---komplexe-proze
 **Input-Parameter:** (Pflichtparameter  mit \*)
 | Name                     | Erläuterung                                                                                                                          |
 | -----------              | -----------                                                                                                                          |
-| eIdLogin                 | Falls "true" muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden.                                 |
+| eIdLogin                 | Falls "true", muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden.                                |
 | formularAS (\*)          | ID des Formulars, das dem Bürger angezeigt werden soll. (Format: '{Mandanten-ID}:{Formular-ID}:{Version}')                           |
 | hinweiseAntragstellung   | Wird dem Bürger vor dem Formular angezeigt ("Was muss der Bürger für den Antrag beachten?" Welche Nachweise muss er bereithalten?)   |
 | hinweiseWeitererAblauf   | Wird dem Bürger nachdem Absenden des Formulars angezeigt. ("Wie geht es mit dem Antrag weiter?")                                     |
