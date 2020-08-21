@@ -3,7 +3,10 @@
 
 ## Inhaltsverzeichnis
 - [1 - Warum CML?](#1---warum-cml)
-- [2 - Quickstart-Anleitung](#2---quickstart-anleitung)
+- [2 - Quickstart](#2---quickstart)
+   - [2a - In 60 Sekunden zum eigenen Prozess](#2a---in-60-Sekunden-zum-eigenen-Prozess)
+   - [2b - Texte individuell anpassen](#2b---Texte-individuell-anpassen)
+   - [2c - Hintergrund und Funktionsweise](#2c---Hintergrund-und-Funktionsweise)
 - [4 - Komplexe Prozesse designen](#4---komplexe-prozesse-designen)
    - [4a - Modul: Konfiguration](#4a---modul--konfiguration)
    - [4b - Modul: Antrag](#4b---modul--antrag)
@@ -12,7 +15,7 @@
    - [5a - Funktion: AttachmentProcessor](#5a---funktion--attachmentprocessor)
 - [6 Lizenz, Vorschläge etc.](#6---Lizenz-Vorschläge-etc)
 
-## 1 - Warum CML?
+## 1 - Einführung und Vorteile
 Der Service-BW-Prozessdesigner ist ein mächtiges Tool, mit dem Kommunen beliebig komplexe Online-Anträge umsetzen können.
 Selbst Details wie "Wann wird der Bürger benachrichtigt?" können frei gestaltet werden.\
 \
@@ -48,8 +51,11 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 - Der Bürger erhält vor dem Absenden des Antrags eine Zusammenfassung des Antrags
 
 
-## 2 - Quickstart-Anleitung
-> **Wichtig:** Damit der Prozess anschließend gleich startet, sollten bei der Formularerstellung gleich die [Voraussetzungen an die Formulare](#3---voraussetzungen-an-die-formulare) beachtet werden!
+## 2 - Quickstart
+
+### 2a - In 60 Sekunden zum eigenen Prozess
+
+**Wichtig:** Damit der Prozess anschließend gleich startet, sollten bei der Formularerstellung gleich die [Voraussetzungen an die Formulare](#3---voraussetzungen-an-die-formulare) beachtet werden!
 
 1. Auf der [Testumgebung von Service-BW](actest.service-bw.de/) ein neues Prozessmodell anlegen.
 
@@ -63,7 +69,7 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 3. Service-BW generiert nun die sog. "Prozessmodell-ID."\
 Diese brauchen Sie in Schritt 8 noch...\
-(Am besten also kurz notieren.)\
+(Am besten also kurz notieren.)
 
 ![Prozessmodell-ID merken](/img/003.jpg) 
 
@@ -127,6 +133,40 @@ Deployen Sie dort das Prozessmodell.
 Der Prozess ist nun voll funktionsfähig.\
 Um das Ganze jetzt noch zu testen, können Sie den Prozess wie gwohnt einer Leistung zuweisen.\
 Z.B. `Zuständigkeitsfinder > Leistung > Prozesse`
+
+
+### 2b - Texte individuell anpassen
+
+
+### 2c - Hintergrund und Funktionsweise
+Die CML basiert auf einem modularen Ansatz:
+
+Das Ziel war es häufig genutzte Features in wiederverwendbare und unabhängige Module zu vereinen.\
+Dadurch soll es möglich sein, auch sehr komplexe Prozesse mit wenig Aufwand zu realiseren.\
+Anstatt alles von \"0 auf 100\" zu entwickeln, können Sie z.B. einfach mehrere \"Sachbearbeiter\"-Module aneinandereihen und schon haben Sie mehrstufige Genehmigungsläufe realisiert.
+
+Des Weiteren soll die CML unbegübten Entwicklern die komplizierte Konfiguration abnehmen.\
+(Beispiel: Zuständiges Behördenkonto ermitteln)
+
+**Das passiert bei der CML im Hintergrund:** \
+Zunächst liest das in [2a eingefügte Template](#2a---in-60-Sekunden-zum-eigenen-Prozess) die sog. Prozessparameter aus und erstellt daraus sog. Prozessinstanz-Variablen. Diese Prozessinstanz-Variablen konfigurieren später die einzelnen Module, z.B.: \
+- `formularAS` bestimmt, welches Formular dem Bürger angezeigt werden soll.
+- `eIdLogin` legt fest, ob der Bürger sich Online ausweisen muss, um den Antrag aufzurufen.
+
+Die eigentliche Arbeit verrichtet die CML später im Hintergrund, ohne dass Sie in Ihrem Prozessmodell jemans etwas einstellen mussten.
+
+Ist diesem Task (Arbeitsschritt) abgeschlossen, erstellt die CML aus dem gleichen Grund auch für die in [2b definierten Texte](#2b---Texte-individuell-anpassen) entsprechende Prozessinstanz-Variablen.
+
+Der nächste Task startet daraufhin die CML.\
+Dazu ruft das Template den sog. Starter-Prozess auf. \
+Der Starter-Prozess koordiniert daraufhin die einzelnen Module und sorgt dafür, dass jedes Modul richtig konfiguriert ist.
+
+![Konfiguration](/img/Starter-BPMN.jpg)
+
+Wenn Sie einen komplexeren Prozess designen möchten, können Sie theoretisch auch einen eigenen Starter-Prozess designen. \
+Am einfachsten wird es jedoch sein, Sie rufen die benötigten CML-Module direkt in Ihrem Haupt-Prozess-Modell (Template) auf.
+
+Näheres dazu finden Sie in [4 - Komplexe Prozesse designen](#4---komplexe-prozesse-designen).
 
 
 ## 3 - Voraussetzungen an die Formulare 
