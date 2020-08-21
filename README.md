@@ -2,18 +2,19 @@
 ![Logo of Stadt Freiburg i. Br.](/img/logo_freiburg.gif) 
 
 ## Inhaltsverzeichnis
-- [1 - Warum CML?](#1---warum-cml)
+- [1 - Einführung und Vorteile](#1---einführung-und-vorteile)
 - [2 - Quickstart](#2---quickstart)
-   - [2a - In 60 Sekunden zum eigenen Prozess](#2a---in-60-Sekunden-zum-eigenen-Prozess)
-   - [2b - Texte individuell anpassen](#2b---Texte-individuell-anpassen)
-   - [2c - Hintergrund und Funktionsweise](#2c---Hintergrund-und-Funktionsweise)
+  * [2a - In 60 Sekunden zum eigenen Prozess](#2a---in-60-sekunden-zum-eigenen-prozess)
+  * [2b - Texte individuell anpassen](#2b---texte-individuell-anpassen)
+  * [2c - Hintergrund und Funktionsweise](#2c---hintergrund-und-funktionsweise)
+- [3 - Voraussetzungen an die Formulare](#3---voraussetzungen-an-die-formulare)
 - [4 - Komplexe Prozesse designen](#4---komplexe-prozesse-designen)
-   - [4a - Modul: Konfiguration](#4a---modul--konfiguration)
-   - [4b - Modul: Antrag](#4b---modul--antrag)
-   - [4c - Modul: Sachbearbeitung](#4c---modul--sachbearbeitung)
+  * [4a - Modul: Konfiguration](#4a---modul-konfiguration)
+  * [4b - Modul: Antrag](#4b---modul-antrag)
+  * [4c - Modul: Sachbearbeitung](#4c---modul-sachbearbeitung)
 - [5 - Funktionen](#5---funktionen)
-   - [5a - Funktion: AttachmentProcessor](#5a---funktion--attachmentprocessor)
-- [6 Lizenz, Vorschläge etc.](#6---Lizenz-Vorschläge-etc)
+  * [5a - Funktion: AttachmentProcessor](#5a---funktion-attachmentprocessor)
+- [6 Lizenz, Vorschläge etc.](#6-lizenz-vorschläge-etc)
 
 ## 1 - Einführung und Vorteile
 Der Service-BW-Prozessdesigner ist ein mächtiges Tool, mit dem Kommunen beliebig komplexe Online-Anträge umsetzen können.
