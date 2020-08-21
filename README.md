@@ -49,9 +49,85 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 
 ## 2 - Quickstart-Anleitung
-**Wichtig:** Damit der Prozess anschließend gleich startet, sollte bei der Formularerstellung gleich die [Voraussetzungen an die Formulare](#3---voraussetzungen-an-die-formulare) beachtet werden.
+> **Wichtig:** Damit der Prozess anschließend gleich startet, sollten bei der Formularerstellung gleich die [Voraussetzungen an die Formulare](#3---voraussetzungen-an-die-formulare) beachtet werden!
 
-1. 
+1. Auf der [Testumgebung von Service-BW](actest.service-bw.de/) ein neues Prozessmodell anlegen.
+
+![Neues Prozessmodell anlegen](/img/001.jpg) 
+
+
+2. Dem Prozessmodell einen Namen geben und speichern.
+
+![Prozessmodell benennen und speichern](/img/002.jpg) 
+
+
+3. Service-BW generiert nun die sog. "Prozessmodell-ID."\
+Diese brauchen Sie in Schritt 8 noch...\
+(Am besten also kurz notieren.)\
+
+![Prozessmodell-ID merken](/img/003.jpg) 
+
+
+4. In einem Editor der Wahl (z.B. Visual Studio Code oder Notepad++) das [Prozessparameter-Template](/Templates/Prozessparameter%20-%20Template.json) öffnen und dort unter `defaultValue` die Formular-IDs eintragen.\
+Format: `{Mandant}:{Formular-ID}:{Versions-ID}` \
+**Hinweis:** Vor der Zertifizierung muss der Parameter 'defaultValue' natürlich wieder entfernt werden.\
+Sie brauchen diesen Paramter nur, um den Prozess vor der Zertifizierung testen zu können.
+
+![Formular-IDs eintragen](/img/004.jpg)
+    
+**Tipp:** Am einfachsten gelangen Sie an die Formular-ID, wenn Sie das entsprechende Formular öffnen und diesen Teil aus der URL herauskopieren:
+
+![Formular-IDs herausfinden](/img/005.jpg)
+
+5. Das Prozessparameter-Template unter **Prozessparamter-Definitionen** hochladen und speichern
+
+![Prozessmodellparameter-Definition hochladen](/img/006.jpg) 
+   
+   
+6. In die **Fachliche Modellierung** wechseln und das [Prozessmodell-Template](/Templates/CML%20-%20Template.bpmn20.xml) hochladen.
+
+![Prozessmodell-Template hochladen](/img/007.jpg) 
+   
+   
+7. Die Prozessmodell-Datei bearbeiten.
+
+![Prozessmodell-Template bearbeiten](/img/008.jpg)
+
+
+8. Bei `Process identifier`die ID des Prozesses wie folgt ändern:\
+`m{Mandanten-ID}.p{Prozessmodell-ID}` \
+Unter `Name` muss der Name des Prozesses eingetragen werden, z.B. \"Wildunfall bescheinigen lassen\".
+
+![Prozessmodell-Template bearbeiten](/img/009.jpg)
+
+
+9. Anschließend die Prozessmodell-Datei speichern.\
+Unter `Name`muss wieder der Name des Prozesses eingetragen werden.\
+Bei `Description`können Sie einen kurzen Erklärungstext formulieren.
+
+![Prozessmodell-Template speichern](/img/010.jpg)
+
+
+10. Wieder zurück im Admincenter können Sie jetzt die Datei freigeben.
+
+![Prozessmodell-Template freigeben](/img/011.jpg)
+
+
+11. Wechseln Sie anschließend wieder in die **Fachliche Modellierung**.\
+Schließen Sie dort diese Entwicklungsphase ab, indem Sie auf \"Stufe abschließen\" klicken.
+
+![Stufe abschließen](/img/012.jpg)
+
+
+12. Wechseln Sie nun in die **Technische Modellierung**.\
+Deployen Sie dort das Prozessmodell.
+
+![Prozess Deployen](/img/013.jpg)
+
+Der Prozess ist nun voll funktionsfähig.\
+Um das Ganze jetzt noch zu testen, können Sie den Prozess wie gwohnt einer Leistung zuweisen.\
+Z.B. `Zuständigkeitsfinder > Leistung > Prozesse`
+
 
 ## 3 - Voraussetzungen an die Formulare 
 
@@ -60,6 +136,8 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 ### 4a - Modul: Konfiguration
 **Key:** m3.1201.cml.konfiguration
 
+**BPMN-Diagramm:**
+![Konfiguration](/img/Konfiguration-BPMN.jpg)
 
 **Input-Parameter:** (Pflichtparameter  mit \*)
 | Name                     | Erläuterung                                                                                                                             |
@@ -80,6 +158,10 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 ### 4b - Modul: Antrag
 **Key:** m3.1201.cml.antrag
 
+**BPMN-Diagramm:**
+![Antrag](/img/Antrag-BPMN.jpg)
+
+**Input-Parameter:** (Pflichtparameter  mit \*)
 | Name                     | Erläuterung                                                                                                                          |
 | -----------              | -----------                                                                                                                          |
 | eIdLogin                 | Falls "true" muss der Bürger sich mithilfe der Online-Ausweis-Funktion des Personalausweis anmelden.                                 |
@@ -107,6 +189,10 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 **Key:** m3.1201.cml.sachbearbeitung
 
+**BPMN-Diagramm:**
+![Sachbearbeitung](/img/Sachbearbeitung-BPMN.jpg)
+
+**Input-Parameter:** (Pflichtparameter  mit \*)
 | Name                     | Erläuterung                                                                                                                          |
 | -----------              | -----------                                                                                                                          |
 | Form (\*)                | Das vom Bürger ausgefüllte Formular als FormContent-Objekt.                                                                          |
@@ -130,12 +216,15 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 ### 5a - Funktion: AttachmentProcessor
 **Key:** m3.1201.cml.attachmentProcessor
 
+**BPMN-Diagramm:**
+![AttachmentProcessor](/img/AttachmentProcessor-BPMN.jpg)
+
+**Input-Parameter:** (Pflichtparameter  mit \*)
 | Name                     | Erläuterung                                                                                    |
 | -----------              | -----------                                                                                    |
 | form (\*)                | Das Formular, aus dem die PDF-Zusammenfassung generiert werden soll. (als FormContent-Objekt)  |
 | onlySummary              | Falls "true" wird nur die Zusammenfassung erstellt. Weitere Anhänge bleiben unberücksichtigt.  |
 | processName (\*)         | Name des Prozesses (z.B. "Geburtsurkunde beantragen").                                         |
-
 
 
 **Output-Parameter:**
