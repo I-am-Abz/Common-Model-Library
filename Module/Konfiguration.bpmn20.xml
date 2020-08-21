@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="UNTERPROZESS">
+  <process id="m3.1201.cml.konfiguration" name="CML - Konfiguraton" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <scriptTask id="scripttask1" name="Antrag löschbar" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script><![CDATA[execution.setVariable("killable", true)]]></script>
+    </scriptTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="scripttask1"></sequenceFlow>
+    <serviceTask id="servicetask1" name="Zuständige OE ermitteln" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.ZustaendigeOrganisationseinheitErmittelnService">
+      <extensionElements>
+        <activiti:field name="leistung">
+          <activiti:expression><![CDATA[${leistung}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="region">
+          <activiti:expression><![CDATA[${region}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="target">
+          <activiti:string><![CDATA[assignedOrgUnits]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <exclusiveGateway id="exclusivegateway1" name="Zuständiger SB bekannt?"></exclusiveGateway>
+    <sequenceFlow id="flow3" name="SB unbekannt" sourceRef="exclusivegateway1" targetRef="servicetask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ empty sbServicekontoId }]]></conditionExpression>
+    </sequenceFlow>
+    <scriptTask id="scripttask2" name="Zuständige SB bestimmen" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <documentation>Variablenname Zuständige Sachbearbeitung:
+
+sbServicekontoId</documentation>
+      <script><![CDATA[import de.seitenbau.serviceportal.prozess.service.model.ProcessOeExtended
+// import org.slf4j.Logger
+
+// Logger logger = org.slf4j.LoggerFactory.getLogger("de.seitenbau.serviceportal.prozess.cml")
+
+List<ProcessOeExtended> assignedOrgUnits = execution.getVariable("assignedOrgUnits") as List<ProcessOeExtended>
+
+String sbServicekontoId = "userId:" + getAssignedCaseWorker(assignedOrgUnits)
+String servicekontoError = ""
+
+// logger.info("The assigned case worker  is '$sbServicekontoId'.")
+execution.setVariable("servicekontoError", servicekontoError)
+execution.setVariable("sbServicekontoId", sbServicekontoId)
+
+// Retrieves the Servicekonto ID of the associated Case Worker.
+// Sets error message to "servicekontoError" on conflict (multiple or no IDs found).
+String getAssignedCaseWorker(List<ProcessOeExtended> assignedOrgUnits) {
+    String caseWorkerId = null
+
+//    logger.info("Zugeordnete OEs: " + $assignedOrgUnits.size())
+
+    // 1 OE assigned -> Searches recursively for a Servicekonto ID.
+    // Sets error message, if no ID was found.
+    if(assignedOrgUnits.size() == 1) {
+        caseWorkerId = getServicekontoId(assignedOrgUnits[0])
+
+        if (caseWorkerId == null) {
+            servicekontoError = """
+            <p>
+                Der Antrag ist in Ihrer Region noch nicht verfügbar.
+                <b>Grund:</b> Die zuständige Behörde besitzt noch kein Behördenkonto oder hat dieses nicht mit dem Antrag verknüpft.
+            </p>
+            """
+        }
+    }
+    // Multiple or no OEs assigned -> search non-recursively for Servicekonto IDs.
+    // Sets error message, if no or multiple IDs were found.
+    // (Note: recursive search would lead to unexpected behavior.)
+    else {
+        def orgUnitsWithServicekonto = assignedOrgUnits.findAll {
+            x -> x.kommunikation?.find { k -> k.kanal == "SERVICEKONTO" } != null
+        }
+
+        switch(orgUnitsWithServicekonto.size()) {
+            case 0:
+                servicekontoError = """
+                <p>
+                    Der Antrag ist in Ihrer Region noch nicht verfügbar.
+                    <b>Grund:</b> Die zuständige Behörde besitzt noch kein Behördenkonto oder hat dieses nicht mit dem Antrag verknüpft.
+                </p>
+                """
+              
+                break
+
+            case 1:
+                caseWorkerId = orgUnitsWithServicekonto[0].kennung
+
+                break
+
+            default:
+                servicekontoError = """
+                <p>
+                    Der Antrag ist in Ihrer Region noch nicht verfügbar.
+                    <b>Grund:</b> In Ihrer Region überschneiden sich für diesen Antrag die Zuständigkeiten.
+                </p>
+                """ 
+
+                break
+        }
+    }
+
+    return caseWorkerId
+}
+
+// Retrieves the first "Servicekonto ID" associated with given "OE". (Recursive Search)
+// "null", if no "Servicekonto ID" was found.
+def getServicekontoId(ProcessOeExtended oe) {
+    if(oe == null){
+        return null
+    }
+    else {
+        boolean hasServicekonto = oe.oe.kommunikation?.find { x -> x.kanal == "SERVICEKONTO" } != null
+        
+        return hasServicekonto ? oe.oe.kommunikation?.find { x -> x.kanal == "SERVICEKONTO" }.kennung
+            : getServicekontoId(oe.uebergeordnet)
+    }
+}]]></script>
+    </scriptTask>
+    <sequenceFlow id="flow4" sourceRef="servicetask1" targetRef="scripttask2"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway2" name="Exclusive Gateway"></exclusiveGateway>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow5" sourceRef="exclusivegateway2" targetRef="endevent1"></sequenceFlow>
+    <scriptTask id="scripttask3" name="Zuständige SB eintragen" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script><![CDATA[execution.setVariable("sbServicekontoId", "userId:" + execution.getVariable("sbServicekontoId"))]]></script>
+    </scriptTask>
+    <sequenceFlow id="flow6" name="SB bekannt" sourceRef="exclusivegateway1" targetRef="scripttask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ not empty sbServicekontoId }]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow7" sourceRef="scripttask3" targetRef="exclusivegateway2"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow8" sourceRef="scripttask2" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow9" name="Zuständige SB gefunden" sourceRef="exclusivegateway3" targetRef="exclusivegateway2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ empty servicekontoError }]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask1" name="Fehler beim Start des Antrags" activiti:assignee="${startedBy}" activiti:formKey="showOnce" activiti:skipExpression="${ empty startedBy }">
+      <documentation>${servicekontoError}</documentation>
+    </userTask>
+    <sequenceFlow id="flow10" name="Mehrere oder keine zuständige SB" sourceRef="exclusivegateway3" targetRef="usertask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ not empty servicekontoError}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="errorendevent1" name="ErrorEnd">
+      <errorEventDefinition></errorEventDefinition>
+    </endEvent>
+    <sequenceFlow id="flow11" sourceRef="usertask1" targetRef="errorendevent1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway4" name="Region ausgewählt?"></exclusiveGateway>
+    <sequenceFlow id="flow12" sourceRef="scripttask1" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow13" name="Region ausgewählt" sourceRef="exclusivegateway4" targetRef="exclusivegateway5">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${not empty region}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask2" name="Fehler beim Start des Antrags" activiti:assignee="${startedBy}" activiti:formKey="showOnce" activiti:skipExpression="${ empty startedBy }">
+      <documentation>Bitte geben Sie eine PLZ im Feld „Zuständige Stelle“ ein, bevor Sie den Antrag starten.</documentation>
+    </userTask>
+    <sequenceFlow id="flow14" name="Keine Region ausgewählt" sourceRef="exclusivegateway4" targetRef="usertask2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${empty region}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="errorendevent2" name="ErrorEnd">
+      <errorEventDefinition></errorEventDefinition>
+    </endEvent>
+    <sequenceFlow id="flow15" sourceRef="usertask2" targetRef="errorendevent2"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow16" name="Leistung gesetzt oder SB schon bekannt" sourceRef="exclusivegateway5" targetRef="exclusivegateway1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ not empty leistung 
+|| not empty sbServicekontoId }]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="usertask3" name="Fehler beim Start des Antrags" activiti:assignee="${startedBy}" activiti:formKey="showOnce">
+      <documentation>Bitte suchen Sie über Service-BW die Leistung, die Sie beantragen wollen. 
+Starten Sie anschließend bitte dort den Prozess.</documentation>
+    </userTask>
+    <sequenceFlow id="flow17" name="Leistung nicht gesetzt + SB unbekannt" sourceRef="exclusivegateway5" targetRef="usertask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${ empty leistung
+&& empty sbServicekontoId }]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="errorendevent3" name="ErrorEnd">
+      <errorEventDefinition></errorEventDefinition>
+    </endEvent>
+    <sequenceFlow id="flow18" sourceRef="usertask3" targetRef="errorendevent3"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_m3.1201.cml.konfiguration">
+    <bpmndi:BPMNPlane bpmnElement="m3.1201.cml.konfiguration" id="BPMNPlane_m3.1201.cml.konfiguration">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="20.0" y="130.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="90.0" y="117.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="729.0" y="220.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="619.0" y="127.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask2" id="BPMNShape_scripttask2">
+        <omgdc:Bounds height="61.0" width="121.0" x="879.0" y="220.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway2" id="BPMNShape_exclusivegateway2">
+        <omgdc:Bounds height="40.0" width="40.0" x="1110.0" y="127.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1179.0" y="130.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask3" id="BPMNShape_scripttask3">
+        <omgdc:Bounds height="61.0" width="121.0" x="729.0" y="117.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
+        <omgdc:Bounds height="40.0" width="40.0" x="1029.0" y="230.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="989.0" y="320.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="errorendevent1" id="BPMNShape_errorendevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1032.0" y="410.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="240.0" y="127.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask2" id="BPMNShape_usertask2">
+        <omgdc:Bounds height="61.0" width="121.0" x="200.0" y="320.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="errorendevent2" id="BPMNShape_errorendevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="243.0" y="414.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
+        <omgdc:Bounds height="40.0" width="40.0" x="470.0" y="127.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
+        <omgdc:Bounds height="61.0" width="121.0" x="430.0" y="320.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="errorendevent3" id="BPMNShape_errorendevent3">
+        <omgdc:Bounds height="35.0" width="35.0" x="473.0" y="414.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="55.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="90.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="639.0" y="167.0"></omgdi:waypoint>
+        <omgdi:waypoint x="638.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="729.0" y="250.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="67.0" x="650.0" y="235.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="850.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="879.0" y="250.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="1150.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1179.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="659.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="729.0" y="147.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="55.0" x="659.0" y="147.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="850.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1110.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="1000.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1029.0" y="250.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="1069.0" y="250.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1129.0" y="249.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1130.0" y="167.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="1138.0" y="209.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="1049.0" y="270.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1049.0" y="320.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="1052.0" y="269.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="1049.0" y="381.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1049.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="211.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="240.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="280.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="470.0" y="147.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="14.0" width="93.0" x="289.0" y="147.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="260.0" y="167.0"></omgdi:waypoint>
+        <omgdi:waypoint x="260.0" y="320.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="270.0" y="238.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="260.0" y="381.0"></omgdi:waypoint>
+        <omgdi:waypoint x="260.0" y="414.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="510.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="619.0" y="147.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="519.0" y="147.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="490.0" y="167.0"></omgdi:waypoint>
+        <omgdi:waypoint x="490.0" y="320.0"></omgdi:waypoint>
+        <bpmndi:BPMNLabel>
+          <omgdc:Bounds height="42.0" width="100.0" x="500.0" y="235.0"></omgdc:Bounds>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="490.0" y="381.0"></omgdi:waypoint>
+        <omgdi:waypoint x="490.0" y="414.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

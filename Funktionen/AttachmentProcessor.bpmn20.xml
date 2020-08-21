@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="UNTERPROZESS">
+  <process id="m3.1201.cml.attachmentProcessor" name="CML - Attachment Processor" isExecutable="true">
+    <documentation>Bereite alle Anhänge eines Formulars so auf, dass diese in einer Servicekonto-Nachricht versandt werden können.
+Anhand des Formulars wird zudem eine PDF-Zusammenfassung erzeugt, die ebenfalls im Anhang übermittelt wird.
+
+Folgende Parameter berücksichtigt der Attachment Processor:
+(Pflichtparameter sind mit * gekennzeichnet.)
+- form (*) (Formular-Variable)
+- processName (Name des Prozesses)
+- onlySummary (Falls "true", wird nur eine Zusammenfassung erstellt. Uploads bleiben unberücksichtigt)
+
+Warum werden deaktivierte Upload-Felder deaktiviert?
+Beispiel: Sachbearbeiter-Formular
+
+Ist ein Upload-Feld deaktiviert geht diese Funktion davon aus, dass die entsprechende Datei von einem anderen Benutzer stammt
+(z.B. Aktueller User: Sachbearbeitung - Datei stammt vom Bürger)
+
+Da der aktuelle User die Datei nicht ändern kann, macht es keinen Sinn, diese dem Anhang beizufügen.</documentation>
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <scriptTask id="scripttask1" name="Anhänge sammeln" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import org.activiti.engine.delegate.DelegateExecution
+import de.seitenbau.serviceportal.formulare.api.FormFieldAndMapping
+
+
+def attachments = []
+
+// Get the summary of the form
+def summary = execution.getVariable("summary")
+summary.uploadedFilename = "${execution.getVariable("processName")} - Zusammenfassung.pdf".toString()
+attachments.add(summary)
+
+// Determine attachment source
+def form = execution.getVariable("form") 
+
+def onlySummary = execution.getVariable("onlySummary") ? execution.getVariable("onlySummary") : "false"
+
+if(onlySummary != "true") {
+    // Collect uploaded files and set attachments
+    // disabled fields are ignored
+    for (def field in form.fields) {
+        def fieldValue = field.value.value
+
+        if (fieldValue?.hasProperty("uploadedFilename") 
+            &amp;&amp; fieldValue?.uploadedFilename) {
+                attachments.add(fieldValue)
+            }
+    }
+}
+
+execution.setVariable("attachments", attachments)</script>
+    </scriptTask>
+    <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <sequenceFlow id="flow2" sourceRef="scripttask1" targetRef="endevent1"></sequenceFlow>
+    <serviceTask id="servicetask1" name="PDF-Zusammenfassung erzeugen" activiti:class="de.seitenbau.serviceportal.prozess.servicetask.PdfErstellenService">
+      <extensionElements>
+        <activiti:field name="source">
+          <activiti:expression><![CDATA[${form}]]></activiti:expression>
+        </activiti:field>
+        <activiti:field name="target">
+          <activiti:expression><![CDATA[summary]]></activiti:expression>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow3" sourceRef="servicetask1" targetRef="scripttask1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_m3.1201.cml.attachmentProcessor">
+    <bpmndi:BPMNPlane bpmnElement="m3.1201.cml.attachmentProcessor" id="BPMNPlane_m3.1201.cml.attachmentProcessor">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="20.0" y="130.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="232.0" y="117.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="380.0" y="130.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="61.0" width="121.0" x="81.0" y="117.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
+        <omgdi:waypoint x="55.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="81.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="353.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="380.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="202.0" y="147.0"></omgdi:waypoint>
+        <omgdi:waypoint x="232.0" y="147.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

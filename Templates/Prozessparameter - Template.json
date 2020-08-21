@@ -1,0 +1,57 @@
+[
+    {
+        "name":"eIdLogin",
+        "description":"Falls 'true' muss sich der Bürger mithilfe der Online-Ausweisfunktion des epa einloggen. Andernfalls erfolgt ein normaler Login.",
+        "type":"STRING",
+        "defaultValue":"false",
+        "required":false,
+        "hidden":false
+    },
+    {
+        "name":"formularAS",
+        "description":"Formular zur Antragstellung. Format (Ohne Klammern): {Mandenten-ID}:{Formular-ID}:{Version}",
+        "type":"STRING",
+        "defaultValue": "3:TEST_AS:v1.0",
+        "required":true,
+        "hidden":false
+    },
+    {
+        "name":"formularRueckfragen",
+        "description":"Formular, über das der Antragsteller Rückfragen bearbeiten kann. Format (Ohne Klammern): {Mandenten-ID}:{Formular-ID}:{Version}",
+        "type":"STRING",
+        "defaultValue": "3:TEST_Rueckfragen:v1.0",
+        "required":false,
+        "hidden":false
+    },
+    {
+        "name":"formularSB",
+        "description":"Formular zur Sachbearbeitung. Format (Ohne Klammern): {Mandenten-ID}:{Formular-ID}:{Version}",
+        "type":"STRING",
+        "defaultValue": "3:TEST_SB:v1.0",
+        "required":true,
+        "hidden":false
+    },
+    {
+        "name":"nameZustaendigeStelle",
+        "description":"Dieser Name wird den Bürgern in den Servicekonto-Nachrichten angezeigt. (z.B. Forstamt, Stadt XX)",
+        "type":"STRING",
+        "defaultValue": "Serviceportal Baden Württemberg",
+        "required":true,
+        "hidden":false
+    },
+    {
+        "name":"logo",
+        "description":"Das Logo, der Behörde erscheint an diversen Stellen im Prozess",
+        "type":"STRING",
+        "defaultValue":"",
+        "required":false,
+        "hidden":false
+    },
+    {
+        "name": "sbServicekontoId",
+        "description": "Hier kann ein Behördenkonto für die Sachbearbeitung eingetragen werden. Falls leer ermittelt der Prozess das zuständige Behördenkonto anhand der 'zuständigen Stelle'",
+        "type": "STRING",
+        "required": false,
+        "hidden":false
+    }
+]
