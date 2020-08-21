@@ -58,7 +58,7 @@ Jedes Modul und jede Funktion kann völlig unabhängig eingesetzt werden und ist
 
 **Wichtig:** Damit der Prozess anschließend gleich startet, sollten bei der Formularerstellung gleich die [Voraussetzungen an die Formulare](#3---voraussetzungen-an-die-formulare) beachtet werden!
 
-1. Auf der [Testumgebung von Service-BW](actest.service-bw.de/) ein neues Prozessmodell anlegen.
+1. Auf der [Testumgebung von Service-BW](https://actest.service-bw.de/) ein neues Prozessmodell anlegen.
 
 ![Neues Prozessmodell anlegen](/img/001.jpg) 
 
